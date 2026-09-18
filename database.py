@@ -1,14 +1,19 @@
 import streamlit as st
 import mysql.connector
+from urllib.parse import urlparse
 
 
 def get_connection():
+    url = st.secrets["mysql"]["url"]
+
+    parsed = urlparse(url)
+
     connection = mysql.connector.connect(
-        host=st.secrets["mysql"]["host"],
-        user=st.secrets["mysql"]["user"],
-        password=st.secrets["mysql"]["password"],
-        database=st.secrets["mysql"]["database"],
-        port=int(st.secrets["mysql"]["port"])
+        host=parsed.hostname,
+        user=parsed.username,
+        password=parsed.password,
+        database=parsed.path.lstrip("/"),
+        port=parsed.port
     )
 
     return connection
@@ -160,8 +165,9 @@ def get_marks(student_id):
         FROM marks
         WHERE student_id = %s
         ORDER BY id
-        """
-    , (student_id,))
+        """,
+        (student_id,)
+    )
 
     marks = cursor.fetchall()
 
