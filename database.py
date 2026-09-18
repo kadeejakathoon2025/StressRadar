@@ -129,10 +129,29 @@ def save_profile(
     st.session_state["student_id"] = student_id
 
 
-# IMPORTANT:
-# Every new user/session starts without automatically loading
-# the previous user's profile.
 def get_latest_profile():
+    student_id = st.session_state.get("student_id")
+
+    if not student_id:
+        return None
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM student_profile
+        WHERE id = ?
+        LIMIT 1
+    """, (student_id,))
+
+    profile = cursor.fetchone()
+
+    connection.close()
+
+    if profile:
+        return dict(profile)
+
     return None
 
 
