@@ -4,16 +4,26 @@ import streamlit as st
 DB_FILE = "stressradar.db"
 
 
+# =========================================================
+# DATABASE CONNECTION
+# =========================================================
+
 def get_connection():
     connection = sqlite3.connect(DB_FILE)
     connection.row_factory = sqlite3.Row
     return connection
 
 
+# =========================================================
+# CREATE TABLES
+# =========================================================
+
 def create_tables():
+
     connection = get_connection()
     cursor = connection.cursor()
 
+    # Student Profile
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS student_profile (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +37,7 @@ def create_tables():
         )
     """)
 
+    # Daily Check-ins
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS daily_checkins (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,6 +57,7 @@ def create_tables():
         )
     """)
 
+    # Marks
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS marks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,6 +70,7 @@ def create_tables():
         )
     """)
 
+    # Courses
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS courses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,6 +85,10 @@ def create_tables():
     connection.close()
 
 
+# =========================================================
+# SAVE STUDENT PROFILE
+# =========================================================
+
 def save_profile(
     name,
     country,
@@ -82,12 +99,22 @@ def save_profile(
     semester,
     courses
 ):
+
     connection = get_connection()
     cursor = connection.cursor()
 
+    # Save student profile
     cursor.execute("""
         INSERT INTO student_profile
-        (name, country, state, college, department, year, semester)
+        (
+            name,
+            country,
+            state,
+            college,
+            department,
+            year,
+            semester
+        )
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (
         name,
@@ -99,22 +126,34 @@ def save_profile(
         semester
     ))
 
+    # Get the ID of the newly created student
     student_id = cursor.lastrowid
 
+    # Save courses
     for course in courses:
 
+        # Dictionary format
         if isinstance(course, dict):
+
             course_name = course["course_name"]
             difficulty = course["difficulty"]
             confidence = course["confidence"]
+
+        # Tuple / list format
         else:
+
             course_name = course[0]
             difficulty = course[1]
             confidence = course[2]
 
         cursor.execute("""
             INSERT INTO courses
-            (student_id, course_name, difficulty, confidence)
+            (
+                student_id,
+                course_name,
+                difficulty,
+                confidence
+            )
             VALUES (?, ?, ?, ?)
         """, (
             student_id,
@@ -126,12 +165,25 @@ def save_profile(
     connection.commit()
     connection.close()
 
+    # IMPORTANT:
+    # Keep the student ID for the current user/session
     st.session_state["student_id"] = student_id
 
+    # IMPORTANT:
+    # Return the ID to My_Profile.py
+    return student_id
+
+
+# =========================================================
+# GET CURRENT USER PROFILE
+# =========================================================
 
 def get_latest_profile():
+
+    # Get the current user's student ID
     student_id = st.session_state.get("student_id")
 
+    # No profile created in this session
     if not student_id:
         return None
 
@@ -155,7 +207,12 @@ def get_latest_profile():
     return None
 
 
+# =========================================================
+# GET COURSES
+# =========================================================
+
 def get_courses(student_id):
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -172,6 +229,10 @@ def get_courses(student_id):
     return [dict(course) for course in courses]
 
 
+# =========================================================
+# SAVE DAILY CHECK-IN
+# =========================================================
+
 def save_checkin(
     student_id,
     checkin_date,
@@ -187,6 +248,7 @@ def save_checkin(
     stress_score,
     weather
 ):
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -228,7 +290,12 @@ def save_checkin(
     connection.close()
 
 
+# =========================================================
+# GET DAILY CHECK-INS
+# =========================================================
+
 def get_checkins(student_id):
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -246,6 +313,10 @@ def get_checkins(student_id):
     return [dict(checkin) for checkin in checkins]
 
 
+# =========================================================
+# SAVE MARK
+# =========================================================
+
 def save_mark(
     student_id,
     course,
@@ -254,6 +325,7 @@ def save_mark(
     total_marks,
     percentage
 ):
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -281,7 +353,12 @@ def save_mark(
     connection.close()
 
 
+# =========================================================
+# GET MARKS
+# =========================================================
+
 def get_marks(student_id):
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -298,5 +375,9 @@ def get_marks(student_id):
 
     return [dict(mark) for mark in marks]
 
+
+# =========================================================
+# CREATE DATABASE TABLES
+# =========================================================
 
 create_tables()
