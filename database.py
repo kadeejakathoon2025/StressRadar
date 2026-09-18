@@ -1,21 +1,15 @@
 import streamlit as st
 import mysql.connector
-from urllib.parse import urlparse
 
 
 def get_connection():
-    url = st.secrets["mysql"]["url"]
-
-    parsed = urlparse(url)
-
     connection = mysql.connector.connect(
-        host=parsed.hostname,
-        user=parsed.username,
-        password=parsed.password,
-        database=parsed.path.lstrip("/"),
-        port=parsed.port
+        host=st.secrets["mysql"]["host"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        database=st.secrets["mysql"]["database"],
+        port=int(st.secrets["mysql"]["port"])
     )
-
     return connection
 
 
@@ -38,15 +32,7 @@ def save_profile(
         (name, country, state, college, department, year, semester)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
         """,
-        (
-            name,
-            country,
-            state,
-            college,
-            department,
-            year,
-            semester
-        )
+        (name, country, state, college, department, year, semester)
     )
 
     student_id = cursor.lastrowid
@@ -58,16 +44,10 @@ def save_profile(
             (student_id, course_name, difficulty, confidence)
             VALUES (%s, %s, %s, %s)
             """,
-            (
-                student_id,
-                course_name,
-                difficulty,
-                confidence
-            )
+            (student_id, course_name, difficulty, confidence)
         )
 
     connection.commit()
-
     cursor.close()
     connection.close()
 
