@@ -1,7 +1,6 @@
 import sqlite3
 import streamlit as st
 
-
 DB_FILE = "stressradar.db"
 
 
@@ -104,13 +103,10 @@ def save_profile(
 
     for course in courses:
 
-        # Handles dictionary format
         if isinstance(course, dict):
             course_name = course["course_name"]
             difficulty = course["difficulty"]
             confidence = course["confidence"]
-
-        # Handles tuple/list format
         else:
             course_name = course[0]
             difficulty = course[1]
@@ -133,24 +129,10 @@ def save_profile(
     st.session_state["student_id"] = student_id
 
 
+# IMPORTANT:
+# Every new user/session starts without automatically loading
+# the previous user's profile.
 def get_latest_profile():
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT *
-        FROM student_profile
-        ORDER BY id DESC
-        LIMIT 1
-    """)
-
-    profile = cursor.fetchone()
-
-    connection.close()
-
-    if profile:
-        return dict(profile)
-
     return None
 
 
