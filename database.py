@@ -103,15 +103,28 @@ def save_profile(
     student_id = cursor.lastrowid
 
     for course in courses:
+
+        # Handles dictionary format
+        if isinstance(course, dict):
+            course_name = course["course_name"]
+            difficulty = course["difficulty"]
+            confidence = course["confidence"]
+
+        # Handles tuple/list format
+        else:
+            course_name = course[0]
+            difficulty = course[1]
+            confidence = course[2]
+
         cursor.execute("""
             INSERT INTO courses
             (student_id, course_name, difficulty, confidence)
             VALUES (?, ?, ?, ?)
         """, (
             student_id,
-            course["course_name"],
-            course["difficulty"],
-            course["confidence"]
+            course_name,
+            difficulty,
+            confidence
         ))
 
     connection.commit()
