@@ -2,19 +2,11 @@ import streamlit as st
 import pandas as pd
 from database import get_checkins
 
-# --------------------------------------------------
-# PAGE SETTINGS
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="Stress Forecast",
     page_icon="🌦️",
     layout="wide"
 )
-
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
 
 if "student_id" not in st.session_state:
     st.session_state.student_id = None
@@ -25,11 +17,6 @@ if "stress_score" not in st.session_state:
 if "stress_forecast" not in st.session_state:
     st.session_state.stress_forecast = None
 
-
-# --------------------------------------------------
-# TITLE
-# --------------------------------------------------
-
 st.title("🌦️ Stress Forecast")
 
 st.write(
@@ -38,11 +25,6 @@ st.write(
 )
 
 st.divider()
-
-
-# --------------------------------------------------
-# CHECK STUDENT
-# --------------------------------------------------
 
 student_id = st.session_state.get("student_id")
 
@@ -53,11 +35,6 @@ if student_id is None:
     )
 
     st.stop()
-
-
-# --------------------------------------------------
-# LOAD CHECK-IN DATA
-# --------------------------------------------------
 
 try:
 
@@ -70,11 +47,6 @@ except Exception as e:
     )
 
     st.stop()
-
-
-# --------------------------------------------------
-# NO DATA
-# --------------------------------------------------
 
 if not checkins:
 
@@ -98,21 +70,11 @@ if not checkins:
 
     st.stop()
 
-
-# --------------------------------------------------
-# DATAFRAME
-# --------------------------------------------------
-
 df = pd.DataFrame(checkins)
 
 df["checkin_date"] = pd.to_datetime(
     df["checkin_date"]
 )
-
-
-# --------------------------------------------------
-# LATEST RESULT
-# --------------------------------------------------
 
 latest = df.iloc[-1]
 
@@ -121,11 +83,6 @@ latest_score = int(
 )
 
 latest_weather = latest["weather"]
-
-
-# --------------------------------------------------
-# WEATHER INTERPRETATION
-# --------------------------------------------------
 
 if latest_score <= 20:
 
@@ -172,11 +129,6 @@ else:
         "Prioritize manageable tasks, breaks and basic self-care."
     )
 
-
-# ==================================================
-# CURRENT STRESS
-# ==================================================
-
 st.subheader("🌩️ Current Stress")
 
 col1, col2 = st.columns([1, 2])
@@ -198,13 +150,7 @@ with col2:
         """
     )
 
-
 st.divider()
-
-
-# ==================================================
-# SUMMARY CARDS
-# ==================================================
 
 st.subheader("📊 Your Stress Summary")
 
@@ -243,13 +189,7 @@ with col3:
         f"{lowest_score}/100"
     )
 
-
 st.divider()
-
-
-# ==================================================
-# STRESS HISTORY
-# ==================================================
 
 st.subheader("📈 Stress History")
 
@@ -271,13 +211,7 @@ st.caption(
     "calculated from your Daily Check-in responses."
 )
 
-
 st.divider()
-
-
-# ==================================================
-# LATEST CHECK-IN FACTORS
-# ==================================================
 
 st.subheader("🔍 Latest Check-in")
 
@@ -328,13 +262,7 @@ with col3:
             "Not soon"
         )
 
-
 st.divider()
-
-
-# ==================================================
-# STRESS SCALE
-# ==================================================
 
 st.subheader("🌈 Stress Scale")
 
@@ -359,13 +287,7 @@ scale_data = pd.DataFrame(
 
 st.table(scale_data)
 
-
 st.divider()
-
-
-# ==================================================
-# IMPORTANT NOTE
-# ==================================================
 
 st.info(
     """

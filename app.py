@@ -1,5 +1,11 @@
+
 import streamlit as st
-from database import get_latest_profile, get_courses, get_checkins
+from database import (
+    get_profile,
+    get_courses,
+    get_checkins,
+    get_all_profiles
+)
 
 
 # =========================================================
@@ -28,44 +34,125 @@ st.divider()
 
 
 # =========================================================
-# LOAD PROFILE
+# CURRENT STUDENT
 # =========================================================
 
-profile = get_latest_profile()
+student_id = st.session_state.get("student_id")
 
 
 # =========================================================
-# IF NO PROFILE
+# IF NO STUDENT IS SELECTED
 # =========================================================
 
-if not profile:
+if not student_id:
 
-    st.info(
-        "👋 Welcome to StressRadar! "
-        "Please create your student profile first."
+    st.header("👋 Welcome to StressRadar")
+
+    st.write(
+        "Please select your profile or create a new student profile."
     )
+
+    profiles = get_all_profiles()
+
+    if profiles:
+
+        st.subheader("👤 Existing Student")
+
+        profile_options = {
+            f"{p['name']} — {p['college']}": p["id"]
+            for p in profiles
+        }
+
+        selected = st.selectbox(
+            "Select your profile",
+            list(profile_options.keys())
+        )
+
+        if st.button(
+            "🚀 Continue",
+            type="primary"
+        ):
+
+            st.session_state.student_id = profile_options[selected]
+
+            profile = get_profile(
+                st.session_state.student_id
+            )
+
+            st.session_state.profile = profile
+
+            st.rerun()
+
+        st.divider()
+
+        st.info(
+            "New student? Open 👤 My Profile from the sidebar "
+            "and create your profile."
+        )
+
+    else:
+
+        st.info(
+            "No student profiles exist yet. "
+            "Open 👤 My Profile and create your first profile."
+        )
 
     st.stop()
 
 
 # =========================================================
-# PROFILE DETAILS
+# LOAD CURRENT STUDENT
 # =========================================================
 
-student_id = profile["id"]
+profile = get_profile(student_id)
 
-name = profile.get("name", "Student")
-college = profile.get("college", "College")
-department = profile.get("department", "Department")
-year = profile.get("year", "Year")
-semester = profile.get("semester", "Semester")
+if not profile:
+
+    st.error(
+        "Student profile could not be found."
+    )
+
+    st.session_state.pop("student_id", None)
+
+    st.stop()
 
 
 # =========================================================
-# LOAD DATA
+# PROFILE INFORMATION
+# =========================================================
+
+name = profile.get(
+    "name",
+    "Student"
+)
+
+college = profile.get(
+    "college",
+    "College"
+)
+
+department = profile.get(
+    "department",
+    "Department"
+)
+
+year = profile.get(
+    "year",
+    "Year"
+)
+
+semester = profile.get(
+    "semester",
+    "Semester"
+)
+
+
+# =========================================================
+# LOAD STUDENT DATA
 # =========================================================
 
 courses = get_courses(student_id)
+
 checkins = get_checkins(student_id)
 
 
@@ -73,7 +160,9 @@ checkins = get_checkins(student_id)
 # WELCOME
 # =========================================================
 
-st.header(f"👋 Welcome back, {name}")
+st.header(
+    f"👋 Welcome back, {name}"
+)
 
 st.caption(
     f"{department} • {year} • {semester}"
@@ -91,7 +180,9 @@ if checkins:
 
     latest = checkins[-1]
 
-    latest_stress = latest.get("stress_score")
+    latest_stress = latest.get(
+        "stress_score"
+    )
 
     latest_weather = latest.get(
         "weather",
@@ -108,37 +199,6 @@ if latest_stress is None:
 
 else:
 
-    if latest_stress <= 20:
-        message = (
-            "Your current estimate is in the Sunny range. "
-            "Keep your routine steady."
-        )
-
-    elif latest_stress <= 40:
-        message = (
-            "Your current estimate is in the Clear range. "
-            "Maintain a balanced routine."
-        )
-
-    elif latest_stress <= 60:
-        message = (
-            "Your current estimate is in the Cloudy range. "
-            "A balanced study plan may help."
-        )
-
-    elif latest_stress <= 80:
-        message = (
-            "Your current estimate is in the Moody range. "
-            "Consider lighter, manageable study blocks."
-        )
-
-    else:
-        message = (
-            "Your current estimate is in the Stormy range. "
-            "Prioritize manageable tasks and recovery."
-        )
-
-
     st.subheader("🌦️ Current Stress")
 
     st.metric(
@@ -146,13 +206,50 @@ else:
         f"{latest_stress}/100"
     )
 
-    st.write(f"**Weather:** {latest_weather}")
+    st.write(
+        f"**Weather:** {latest_weather}"
+    )
+
+    if latest_stress <= 20:
+
+        message = (
+            "Your current estimate is in the Sunny range. "
+            "Keep your routine steady."
+        )
+
+    elif latest_stress <= 40:
+
+        message = (
+            "Your current estimate is in the Clear range. "
+            "Maintain a balanced routine."
+        )
+
+    elif latest_stress <= 60:
+
+        message = (
+            "Your current estimate is in the Cloudy range. "
+            "A balanced study plan may help."
+        )
+
+    elif latest_stress <= 80:
+
+        message = (
+            "Your current estimate is in the Moody range. "
+            "Consider lighter, manageable study blocks."
+        )
+
+    else:
+
+        message = (
+            "Your current estimate is in the Stormy range. "
+            "Prioritize manageable tasks and recovery."
+        )
 
     st.caption(message)
 
 
 # =========================================================
-# DASHBOARD METRICS
+# DASHBOARD
 # =========================================================
 
 st.divider()
@@ -220,48 +317,6 @@ with col4:
 
 
 # =========================================================
-# QUICK ACTIONS
-# =========================================================
-
-st.divider()
-
-st.subheader("⚡ Quick Actions")
-
-
-col1, col2, col3 = st.columns(3)
-
-
-with col1:
-
-    st.markdown("### 📊 Daily Check-in")
-
-    st.write(
-        "Record today's workload, sleep, "
-        "mood and stress."
-    )
-
-
-with col2:
-
-    st.markdown("### 🌦️ Stress Forecast")
-
-    st.write(
-        "View your stress history and "
-        "current status."
-    )
-
-
-with col3:
-
-    st.markdown("### 📚 Study Planner")
-
-    st.write(
-        "Get a personalized study order "
-        "based on your current stress."
-    )
-
-
-# =========================================================
 # COURSES
 # =========================================================
 
@@ -274,25 +329,10 @@ if courses:
 
     for course in courses:
 
-        course_name = course.get(
-            "course_name",
-            "Course"
-        )
-
-        difficulty = course.get(
-            "difficulty",
-            "Not specified"
-        )
-
-        confidence = course.get(
-            "confidence",
-            "—"
-        )
-
         with st.container(border=True):
 
             st.markdown(
-                f"### 📖 {course_name}"
+                f"### 📖 {course['course_name']}"
             )
 
             col1, col2 = st.columns(2)
@@ -300,26 +340,56 @@ if courses:
             with col1:
 
                 st.write(
-                    f"**Difficulty:** {difficulty}"
+                    f"**Difficulty:** {course['difficulty']}"
                 )
 
             with col2:
 
                 st.write(
-                    f"**Confidence:** {confidence}/10"
+                    f"**Confidence:** "
+                    f"{course['confidence']}/10"
                 )
-
 
 else:
 
     st.info(
-        "No courses found. "
-        "Create your profile to add courses."
+        "No courses found."
     )
 
 
 # =========================================================
-# ABOUT STRESSRADAR
+# LOGOUT / SWITCH STUDENT
+# =========================================================
+
+st.divider()
+
+if st.button("🔄 Switch Student"):
+
+    st.session_state.pop(
+        "student_id",
+        None
+    )
+
+    st.session_state.pop(
+        "profile",
+        None
+    )
+
+    st.session_state.pop(
+        "stress_score",
+        None
+    )
+
+    st.session_state.pop(
+        "stress_forecast",
+        None
+    )
+
+    st.rerun()
+
+
+# =========================================================
+# ABOUT
 # =========================================================
 
 st.divider()
@@ -332,11 +402,6 @@ st.write(
     "upcoming exams to provide an explainable stress "
     "estimate and personalized study guidance."
 )
-
-
-# =========================================================
-# FOOTER
-# =========================================================
 
 st.divider()
 

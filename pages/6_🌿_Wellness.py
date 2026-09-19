@@ -1,26 +1,13 @@
 import streamlit as st
 
-# --------------------------------------------------
-# PAGE SETTINGS
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="Wellness",
     page_icon="🌿",
     layout="wide"
 )
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-
 if "stress_score" not in st.session_state:
     st.session_state.stress_score = None
-
-
-# --------------------------------------------------
-# TITLE
-# --------------------------------------------------
 
 st.title("🌿 Wellness")
 
@@ -30,11 +17,6 @@ st.write(
 )
 
 st.divider()
-
-
-# ==================================================
-# CURRENT STATUS
-# ==================================================
 
 stress_score = st.session_state.get(
     "stress_score"
@@ -98,13 +80,7 @@ else:
                 "Maintain healthy study habits."
             )
 
-
 st.divider()
-
-
-# ==================================================
-# WELLNESS CARDS
-# ==================================================
 
 st.subheader("🌱 Simple Wellness Habits")
 
@@ -137,9 +113,7 @@ with col3:
         "and remember to take regular breaks."
     )
 
-
 st.divider()
-
 
 col1, col2, col3 = st.columns(3)
 
@@ -170,13 +144,7 @@ with col3:
         "teacher or counselor when you need support."
     )
 
-
 st.divider()
-
-
-# ==================================================
-# QUICK RESET
-# ==================================================
 
 st.subheader("🌿 5-Minute Reset")
 
@@ -192,13 +160,7 @@ st.info(
     """
 )
 
-
 st.divider()
-
-
-# ==================================================
-# IMPORTANT NOTE
-# ==================================================
 
 st.warning(
     """
@@ -208,7 +170,6 @@ st.warning(
     medical diagnosis or a replacement for professional help.
     """
 )
-
 
 st.caption(
     "🌿 StressRadar • Take care of yourself while you work toward your goals."

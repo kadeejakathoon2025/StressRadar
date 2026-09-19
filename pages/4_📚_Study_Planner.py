@@ -1,29 +1,16 @@
 import streamlit as st
 
-# --------------------------------------------------
-# PAGE SETTINGS
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="Study Planner",
     page_icon="📚",
     layout="wide"
 )
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-
 if "profile" not in st.session_state:
     st.session_state.profile = None
 
 if "stress_score" not in st.session_state:
     st.session_state.stress_score = None
-
-
-# --------------------------------------------------
-# TITLE
-# --------------------------------------------------
 
 st.title("📚 Smart Study Planner")
 
@@ -34,46 +21,27 @@ st.write(
 
 st.divider()
 
-
-# --------------------------------------------------
-# PROFILE CHECK
-# --------------------------------------------------
-
 profile = st.session_state.get("profile")
 
 if profile is None:
-
     st.warning(
         "⚠️ Please create your student profile first."
     )
-
     st.stop()
-
-
-# --------------------------------------------------
-# STRESS CHECK
-# --------------------------------------------------
 
 stress_score = st.session_state.get("stress_score")
 
-
 if stress_score is None:
-
     st.info(
         "🌩️ Complete your Daily Check-in first so "
         "StressRadar can personalize your study plan."
     )
-
     st.stop()
-
-
-# ==================================================
-# STUDY MODE
-# ==================================================
 
 if stress_score >= 61:
 
     mode = "🌧️ Recovery Study Mode"
+
     description = (
         "Your estimated stress is elevated. "
         "StressRadar prioritizes manageable subjects "
@@ -92,6 +60,7 @@ if stress_score >= 61:
 elif stress_score >= 41:
 
     mode = "☁️ Balanced Study Mode"
+
     description = (
         "Your estimated stress is moderate. "
         "StressRadar creates a balanced study schedule."
@@ -109,6 +78,7 @@ elif stress_score >= 41:
 else:
 
     mode = "☀️ Deep Focus Mode"
+
     description = (
         "Your estimated stress is relatively low. "
         "StressRadar prioritizes more challenging subjects."
@@ -122,11 +92,6 @@ else:
         "Medium": 2,
         "Easy": 3
     }
-
-
-# ==================================================
-# CURRENT STATUS
-# ==================================================
 
 st.subheader("🌩️ Your Current Study Mode")
 
@@ -145,13 +110,7 @@ with col2:
 
     st.caption(description)
 
-
 st.divider()
-
-
-# ==================================================
-# COURSE DATA
-# ==================================================
 
 course_details = profile.get(
     "course_details",
@@ -185,8 +144,6 @@ for course_name in profile.get("courses", []):
         }
     )
 
-
-# Sort courses according to stress-based mode
 course_list.sort(
     key=lambda x: (
         difficulty_order.get(
@@ -196,11 +153,6 @@ course_list.sort(
         x["confidence"]
     )
 )
-
-
-# ==================================================
-# STUDY PLAN
-# ==================================================
 
 st.subheader("🗓️ Your Personalized Study Plan")
 
@@ -247,11 +199,6 @@ else:
 
         st.divider()
 
-
-# ==================================================
-# PERSONALIZED TIP
-# ==================================================
-
 st.subheader("💡 StressRadar Tip")
 
 if stress_score >= 61:
@@ -277,7 +224,6 @@ else:
         "Use this period for focused work on your more "
         "challenging subjects."
     )
-
 
 st.divider()
 

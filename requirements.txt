@@ -1,2 +1,5 @@
+# requirements.txt
+
 streamlit
+mysql-connector-python
 pandas

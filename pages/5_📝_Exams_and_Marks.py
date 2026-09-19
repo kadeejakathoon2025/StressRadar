@@ -2,30 +2,17 @@ import streamlit as st
 import pandas as pd
 from database import get_connection, get_marks
 
-# --------------------------------------------------
-# PAGE SETTINGS
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="Exams & Marks",
     page_icon="📝",
     layout="wide"
 )
 
-# --------------------------------------------------
-# SESSION STATE
-# --------------------------------------------------
-
 if "student_id" not in st.session_state:
     st.session_state.student_id = None
 
 if "marks" not in st.session_state:
     st.session_state.marks = []
-
-
-# --------------------------------------------------
-# TITLE
-# --------------------------------------------------
 
 st.title("📝 Exams & Marks")
 
@@ -36,11 +23,6 @@ st.write(
 
 st.divider()
 
-
-# --------------------------------------------------
-# STUDENT CHECK
-# --------------------------------------------------
-
 student_id = st.session_state.get("student_id")
 
 if student_id is None:
@@ -50,11 +32,6 @@ if student_id is None:
     )
 
     st.stop()
-
-
-# --------------------------------------------------
-# LOAD MARKS
-# --------------------------------------------------
 
 try:
 
@@ -67,11 +44,6 @@ except Exception as e:
     st.error(
         f"Could not load your marks: {e}"
     )
-
-
-# ==================================================
-# ADD MARKS
-# ==================================================
 
 st.subheader("➕ Add Assessment")
 
@@ -112,7 +84,6 @@ with col2:
         value=100.0,
         step=1.0
     )
-
 
 if st.button(
     "💾 Save Assessment",
@@ -184,13 +155,7 @@ if st.button(
                 f"Could not save assessment: {e}"
             )
 
-
 st.divider()
-
-
-# ==================================================
-# MARKS SUMMARY
-# ==================================================
 
 st.subheader("📊 Academic Summary")
 
@@ -218,7 +183,6 @@ else:
 
     total_assessments = len(df)
 
-
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -242,13 +206,7 @@ else:
             total_assessments
         )
 
-
     st.divider()
-
-
-    # --------------------------------------------------
-    # PERFORMANCE CHART
-    # --------------------------------------------------
 
     st.subheader("📈 Performance Overview")
 
@@ -265,13 +223,7 @@ else:
         y="percentage"
     )
 
-
     st.divider()
-
-
-    # --------------------------------------------------
-    # HISTORY
-    # --------------------------------------------------
 
     st.subheader("📋 Assessment History")
 
@@ -297,11 +249,6 @@ else:
         use_container_width=True,
         hide_index=True
     )
-
-
-# --------------------------------------------------
-# NOTE
-# --------------------------------------------------
 
 st.divider()
 
